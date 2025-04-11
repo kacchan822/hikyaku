@@ -1,0 +1,22 @@
+# Python cache files
+__pycache__/
+*.pyc
+
+# Environment files
+.env
+
+# Uploads
+uploads/
+
+# Logs
+*.log
+
+# System files
+.DS_Store
+
+# Docker
+*.pid
+*.tar
+
+# VSCode
+.vscode/
