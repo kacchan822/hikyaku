@@ -1,0 +1,10 @@
+name: hikyaku_project
+
+services:
+  app:
+    build: .
+    ports:
+      - "58080:5000"
+    volumes:
+      - .:/app
+    command: flask run --host=0.0.0.0

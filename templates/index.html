@@ -1,0 +1,150 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>HIKYAKU（飛脚）</title>
+    <link rel="stylesheet" href="/static/css/style.css">
+    <style>
+        #drop-area {
+            border: 2px dashed #ccc;
+            border-radius: 10px;
+            padding: 20px;
+            text-align: center;
+            margin: 20px 0;
+        }
+
+        #drop-area.dragging {
+            border-color: #000;
+            background-color: #f0f0f0;
+        }
+
+        #file-list {
+            margin-top: 10px;
+            list-style: none;
+            padding: 0;
+        }
+
+        #file-list li {
+            margin: 5px 0;
+            display: flex;
+            align-items: center;
+        }
+
+        #file-list img {
+            max-width: 50px;
+            max-height: 50px;
+            margin-right: 10px;
+        }
+
+        #file-list img.icon {
+            max-width: 30px;
+            max-height: 30px;
+            margin-right: 10px;
+        }
+
+        button[type="submit"] {
+            display: block;
+            margin: 20px auto;
+            padding: 15px 30px;
+            font-size: 16px;
+            background-color: #007BFF;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+
+        button[type="submit"]:hover {
+            background-color: #0056b3;
+        }
+
+        form div {
+            margin-bottom: 20px;
+        }
+
+        input[type="email"] {
+            width: 100%;
+            box-sizing: border-box;
+        }
+    </style>
+</head>
+<body>
+    <h1>HIKYAKU（飛脚）</h1>
+    <form action="/upload" method="post" enctype="multipart/form-data">
+        <div>
+            <label for="recipient-name">送り先の名前:</label>
+            <input type="text" id="recipient-name" name="recipient_name" required style="height: 40px;">
+        </div>
+        <div>
+            <label for="recipient-email">送り先のメールアドレス:</label>
+            <input type="email" id="recipient-email" name="recipient_email" required style="height: 40px;">
+        </div>
+        <div id="drop-area">
+            <p>ここにファイルをドラッグ＆ドロップするか、クリックして選択してください</p>
+            <input id="file-input" type="file" name="file" multiple required style="display: none;">
+            <ul id="file-list"></ul>
+        </div>
+        <button type="submit">アップロード</button>
+    </form>
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const dropArea = document.getElementById('drop-area');
+            const fileInput = document.getElementById('file-input');
+            const fileList = document.getElementById('file-list');
+
+            dropArea.addEventListener('dragover', (event) => {
+                event.preventDefault();
+                dropArea.classList.add('dragging');
+            });
+
+            dropArea.addEventListener('dragleave', () => {
+                dropArea.classList.remove('dragging');
+            });
+
+            dropArea.addEventListener('drop', (event) => {
+                event.preventDefault();
+                dropArea.classList.remove('dragging');
+                const files = event.dataTransfer.files;
+                fileInput.files = files;
+                updateFileList(files);
+            });
+
+            fileInput.addEventListener('change', (event) => {
+                updateFileList(event.target.files);
+            });
+
+            function updateFileList(files) {
+                fileList.innerHTML = '';
+                Array.from(files).forEach(file => {
+                    const listItem = document.createElement('li');
+                    const fileName = document.createElement('span');
+                    fileName.textContent = file.name;
+
+                    if (file.type.startsWith('image/')) {
+                        const thumbnail = document.createElement('img');
+                        const reader = new FileReader();
+                        reader.onload = (e) => {
+                            thumbnail.src = e.target.result;
+                        };
+                        reader.readAsDataURL(file);
+                        listItem.appendChild(thumbnail);
+                    } else {
+                        const icon = document.createElement('img');
+                        icon.src = '/static/img/file-icon.png'; // 適当なアイコン画像を指定
+                        icon.classList.add('icon');
+                        listItem.appendChild(icon);
+                    }
+
+                    listItem.appendChild(fileName);
+                    fileList.appendChild(listItem);
+                });
+            }
+        });
+
+        document.getElementById('drop-area').addEventListener('click', () => {
+            document.getElementById('file-input').click();
+        });
+    </script>
+</body>
+</html>
